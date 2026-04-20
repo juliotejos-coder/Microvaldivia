@@ -13,16 +13,112 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-  body { margin: 0; display: flex; font-family: Arial, sans-serif; }
-  #panel { width: 280px; padding: 10px; background:#f4f4f4; overflow-y:auto; }
-  #map { flex:1; height:100vh; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #map {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* PANEL LATERAL */
+  #panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #f4f4f4;
+    padding: 10px;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.15);
+  }
+
+  #panel h3 {
+    margin-top: 0;
+  }
+
+  /* BOTÓN MENÚ */
+  #toggle-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    font-size: 22px;
+    padding: 6px 10px;
+    border: none;
+    background: #0b5ed7;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  /* BANNER OFFLINE */
+  #offline-banner {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #dc3545;
+    color: white;
+    padding: 6px;
+    text-align: center;
+    z-index: 1200;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  /* =========================
+     ESCRITORIO
+     ========================= */
+  @media (min-width: 769px) {
+    #panel {
+      transform: translateX(0);
+    }
+
+    #toggle-panel {
+      display: none;
+    }
+
+    #map {
+      margin-left: 280px;
+      width: calc(100vw - 280px);
+    }
+  }
+
+  /* =========================
+     MÓVIL
+     ========================= */
+  @media (max-width: 768px) {
+    #panel {
+      transform: translateX(-100%);
+    }
+
+    #panel.open {
+      transform: translateX(0);
+    }
+
+    #map {
+      margin-left: 0;
+      width: 100vw;
+    }
+  }
 </style>
 </head>
+
 <body>
 
-<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#dc3545;color:#fff;padding:8px;text-align:center;z-index:9999;font-weight:bold;">
+<div id="offline-banner">
   ⚠️ Modo offline: usando datos guardados
 </div>
+
+<button id="toggle-panel" title="Mostrar / ocultar recorridos">☰</button>
 
 <div id="panel">
   <h3>🚌 Recorridos</h3>
@@ -32,10 +128,12 @@
 <div id="map"></div>
 
 <script>
-// Inicializar mapa
+/* ===============================
+   MAPA
+   =============================== */
 const map = L.map('map', { maxZoom: 18 }).setView([-39.82, -73.25], 13);
 
-// ✅ MAPA BASE CARTO (SIN TOKEN, SIN BLOQUEOS)
+// ✅ MAPA BASE CARTO (permitido, sin token)
 L.tileLayer(
   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
   {
@@ -45,7 +143,9 @@ L.tileLayer(
   }
 ).addTo(map);
 
-// Banner modo offline
+/* ===============================
+   OFFLINE
+   =============================== */
 function updateOnlineStatus() {
   const banner = document.getElementById('offline-banner');
   banner.style.display = navigator.onLine ? 'none' : 'block';
@@ -54,15 +154,30 @@ window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
-// Cargar recorridos desde GeoJSON
-fetch('data/index.json')
-  .then(r => r.json())
+/* ===============================
+   PANEL DESPLEGABLE (MÓVIL)
+   =============================== */
+const toggleBtn = document.getElementById('toggle-panel');
+const panel = document.getElementById('panel');
+
+toggleBtn.addEventListener('click', () => {
+  panel.classList.toggle('open');
+});
+
+/* ===============================
+   CARGA DE RECORRIDOS
+   =============================== */
+fetch('./data/index.json')
+  .then(r => {
+    if (!r.ok) throw new Error('No se pudo cargar index.json');
+    return r.json();
+  })
   .then(routes => {
     const lista = document.getElementById('lista');
     lista.innerHTML = '';
 
     routes.forEach(rt => {
-      fetch(`data/${rt.archivo}`)
+      fetch(`./data/${rt.archivo}`)
         .then(r => r.json())
         .then(gj => {
           const layer = L.geoJSON(gj, {
@@ -71,8 +186,16 @@ fetch('data/index.json')
 
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
+
           checkbox.onchange = () => {
-            checkbox.checked ? layer.addTo(map) : map.removeLayer(layer);
+            if (checkbox.checked) {
+              layer.addTo(map);
+              if (window.innerWidth <= 768) {
+                panel.classList.remove('open'); // cerrar en movil
+              }
+            } else {
+              map.removeLayer(layer);
+            }
           };
 
           const label = document.createElement('label');
@@ -84,11 +207,14 @@ fetch('data/index.json')
         });
     });
   })
-  .catch(() => {
+  .catch(err => {
+    console.error(err);
     document.getElementById('lista').innerHTML = 'Error cargando recorridos';
   });
 
-// Registrar Service Worker (PWA)
+/* ===============================
+   PWA
+   =============================== */
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
@@ -96,3 +222,4 @@ if ('serviceWorker' in navigator) {
 
 </body>
 </html>
+``
