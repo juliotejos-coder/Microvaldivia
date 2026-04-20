@@ -13,114 +13,176 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
+/* =======================
+   BASE
+   ======================= */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+#map {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* =======================
+   PANEL LATERAL
+   ======================= */
+#panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: #ffffff;
+  padding: 10px;
+  overflow-y: auto;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  border-right: 1px solid #e5e7eb;
+  box-shadow: 4px 0 18px rgba(0,0,0,0.08);
+}
+
+#panel.open {
+  transform: translateX(0);
+}
+
+#panel h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0b5ed7;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+#panel label {
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+}
+
+#panel input[type="checkbox"] {
+  accent-color: #0b5ed7;
+  margin-right: 6px;
+}
+
+/* =======================
+   BOTÓN RECORRIDOS
+   ======================= */
+#toggle-panel {
+  position: fixed;
+  bottom: 18px;
+  left: 12px;
+  z-index: 1100;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  background: #0b5ed7; /* cerrado */
+  border: none;
+  border-radius: 14px;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* SVG */
+#toggle-panel svg {
+  width: 22px;
+  height: 22px;
+}
+
+.line {
+  fill: none;
+  stroke: white;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: all 0.4s ease;
+}
+
+/* Texto */
+#toggle-panel .label {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+/* Contador */
+#toggle-panel .counter {
+  background: white;
+  color: #0b5ed7;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* =======================
+   BOTÓN ABIERTO
+   ======================= */
+#panel.open ~ #toggle-panel {
+  background: #dc3545; /* rojo */
+}
+
+#panel.open ~ #toggle-panel .top {
+  transform: rotate(45deg) translate(14px, -10px);
+}
+
+#panel.open ~ #toggle-panel .middle {
+  opacity: 0;
+}
+
+#panel.open ~ #toggle-panel .bottom {
+  transform: rotate(-45deg) translate(14px, 10px);
+}
+
+#panel.open ~ #toggle-panel .label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* =======================
+   ESCRITORIO
+   ======================= */
+@media (min-width: 769px) {
+  #panel {
+    transform: translateX(0);
+  }
+
+  #toggle-panel {
+    display: none;
   }
 
   #map {
-    width: 100vw;
-    height: 100vh;
+    margin-left: 240px;
+    width: calc(100vw - 240px);
   }
-
-  /* PANEL LATERAL */
-  #panel {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 240px;
-    height: 100vh;
-    background: #f4f4f4;
-    padding: 10px;
-    overflow-y: auto;
-    z-index: 1000;
-    transition: transform 0.3s ease;
-    box-shadow: 2px 0 6px rgba(0,0,0,0.15);
-  }
-
-  #panel h3 {
-    margin-top: 0;
-  }
-
-  /* BOTÓN ☰ */
-  #toggle-panel {
-    position: absolute;
-    top: 70px;        /* 🔽 más abajo */
-    left: 12px;       /* ⬅ izquierda */
-    z-index: 1100;
-    font-size: 22px;
-    padding: 6px 10px;
-    border: none;
-    background: #0b5ed7;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
-  /* BANNER OFFLINE */
-  #offline-banner {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: #dc3545;
-    color: white;
-    padding: 6px;
-    text-align: center;
-    z-index: 1200;
-    font-weight: bold;
-    font-size: 14px;
-  }
-
-  /* =========================
-     ESCRITORIO
-     ========================= */
-  @media (min-width: 769px) {
-    #panel {
-      transform: translateX(0);
-    }
-
-    #toggle-panel {
-      display: none;
-    }
-
-    #map {
-      margin-left: 240px;
-      width: calc(100vw - 240px);
-    }
-  }
-
-  /* =========================
-     MÓVIL
-     ========================= */
-  @media (max-width: 768px) {
-    #panel {
-      width: 220px;
-      transform: translateX(-100%);
-    }
-
-    #panel.open {
-      transform: translateX(0);
-    }
-
-    #map {
-      margin-left: 0;
-      width: 100vw;
-    }
-  }
+}
 </style>
 </head>
 
 <body>
 
-<div id="offline-banner">
-  ⚠️ Modo offline: usando datos guardados
-</div>
-
-<button id="toggle-panel" title="Mostrar / ocultar recorridos">☰</button>
+<button id="toggle-panel" aria-label="Recorridos">
+  <svg viewBox="0 0 100 100">
+    <path class="line top" d="M 20 30 H 80" />
+    <path class="line middle" d="M 20 50 H 80" />
+    <path class="line bottom" d="M 20 70 H 80" />
+  </svg>
+  <span class="label">Recorridos</span>
+  <span class="counter" id="route-count">0</span>
+</button>
 
 <div id="panel">
   <h3>🚌 Recorridos</h3>
@@ -130,53 +192,41 @@
 <div id="map"></div>
 
 <script>
-/* ===============================
+/* =======================
    MAPA
-   =============================== */
+   ======================= */
 const map = L.map('map', {
   maxZoom: 18,
   zoomControl: false
 }).setView([-39.82, -73.25], 13);
 
-// Zoom arriba a la derecha
-L.control.zoom({
-  position: 'topright'
-}).addTo(map);
+L.control.zoom({ position: 'topright' }).addTo(map);
 
-// Mapa base CARTO (sin token)
 L.tileLayer(
   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
   {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
     subdomains: 'abcd',
     maxZoom: 19
   }
 ).addTo(map);
 
-/* ===============================
-   OFFLINE
-   =============================== */
-function updateOnlineStatus() {
-  const banner = document.getElementById("offline-banner");
-  banner.style.display = navigator.onLine ? "none" : "block";
-}
-window.addEventListener("online", updateOnlineStatus);
-window.addEventListener("offline", updateOnlineStatus);
-updateOnlineStatus();
-
-/* ===============================
-   PANEL DESPLEGABLE
-   =============================== */
-const toggleBtn = document.getElementById("toggle-panel");
+/* =======================
+   PANEL
+   ======================= */
 const panel = document.getElementById("panel");
+const toggleBtn = document.getElementById("toggle-panel");
 
 toggleBtn.addEventListener("click", () => {
   panel.classList.toggle("open");
 });
 
-/* ===============================
-   CARGA DE RECORRIDOS
-   =============================== */
+/* =======================
+   RECORRIDOS + CONTADOR
+   ======================= */
+let activeRoutes = 0;
+const counter = document.getElementById("route-count");
+
 fetch("./data/index.json")
   .then(r => r.json())
   .then(routes => {
@@ -197,12 +247,13 @@ fetch("./data/index.json")
           checkbox.onchange = () => {
             if (checkbox.checked) {
               layer.addTo(map);
-              if (window.innerWidth <= 768) {
-                panel.classList.remove("open");
-              }
+              activeRoutes++;
+              panel.classList.remove("open");
             } else {
               map.removeLayer(layer);
+              activeRoutes--;
             }
+            counter.textContent = activeRoutes;
           };
 
           const label = document.createElement("label");
@@ -213,14 +264,11 @@ fetch("./data/index.json")
           lista.appendChild(document.createElement("br"));
         });
     });
-  })
-  .catch(() => {
-    document.getElementById("lista").innerHTML = "Error cargando recorridos";
   });
 
-/* ===============================
+/* =======================
    PWA
-   =============================== */
+   ======================= */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
 }
@@ -228,4 +276,3 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-``
