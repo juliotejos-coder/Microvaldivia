@@ -1,1 +1,52 @@
-[{"route_id": "297", "archivo": "ruta_297.geojson", "color": "#C1121F"}, {"route_id": "298", "archivo": "ruta_298.geojson", "color": "#1D4ED8"}, {"route_id": "299", "archivo": "ruta_299.geojson", "color": "#15803D"}, {"route_id": "300", "archivo": "ruta_300.geojson", "color": "#7C3AED"}, {"route_id": "301", "archivo": "ruta_301.geojson", "color": "#EA580C"}, {"route_id": "302", "archivo": "ruta_302.geojson", "color": "#0F766E"}, {"route_id": "303", "archivo": "ruta_303.geojson", "color": "#C1121F"}, {"route_id": "304", "archivo": "ruta_304.geojson", "color": "#1D4ED8"}, {"route_id": "305", "archivo": "ruta_305.geojson", "color": "#15803D"}, {"route_id": "306", "archivo": "ruta_306.geojson", "color": "#7C3AED"}, {"route_id": "912", "archivo": "ruta_912.geojson", "color": "#EA580C"}]
+import pandas as pd
+import json
+
+# =========================
+# CONFIGURACIÓN
+# =========================
+ROUTES_FILE = "routes.txt"      # GTFS original
+OUTPUT_FILE = "data/index.json" # Archivo que se reemplazará
+
+# Paleta de colores simple (se reutiliza si hay más rutas)
+COLORS = [
+    "#1D4ED8", "#15803D", "#C1121F",
+    "#7C3AED", "#EA580C", "#0F766E"
+]
+
+# =========================
+# CARGA DE ROUTES.TXT
+# =========================
+routes = pd.read_csv(
+    ROUTES_FILE,
+    dtype=str,
+    usecols=["route_id", "route_short_name", "route_long_name"]
+)
+
+routes = routes.sort_values("route_short_name")
+
+# =========================
+# CONSTRUIR INDEX.JSON
+# =========================
+index = []
+
+for i, row in routes.iterrows():
+    route_id = row["route_id"]
+    short_name = row["route_short_name"]
+    long_name = row["route_long_name"]
+
+    index.append({
+        "route_id": route_id,
+        "route_short_name": short_name,
+        "route_long_name": long_name,
+        "archivo": f"ruta_{route_id}.geojson",
+        "color": COLORS[len(index) % len(COLORS)]
+    })
+
+# =========================
+# GUARDAR RESULTADO
+# =========================
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    json.dump(index, f, ensure_ascii=False, indent=2)
+
+print("✅ index.json generado correctamente")
+``
