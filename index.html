@@ -7,272 +7,157 @@
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b5ed7">
-<link rel="icon" href="icons/favicon.png" type="image/png">
+<link rel="icon" href="icons/favicon.png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-/* =======================
-   BASE
-   ======================= */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
+body{margin:0;font-family:Arial,sans-serif;overflow:hidden}
+
+/* MAPA */
+#map{width:100vw;height:100vh}
+
+/* PANEL */
+#panel{
+  position:fixed;
+  top:0;left:0;
+  width:240px;
+  height:100vh;
+  background:#fff;
+  padding:10px;
+  transform:translateX(-100%);
+  transition:transform .3s ease;
+  box-shadow:4px 0 18px rgba(0,0,0,.08);
+  z-index:1000;
+}
+#panel.open{transform:translateX(0)}
+
+#panel h3{
+  color:#0b5ed7;
+  font-size:16px;
+  border-bottom:1px solid #e5e7eb;
+  padding-bottom:8px;
 }
 
-#map {
-  width: 100vw;
-  height: 100vh;
+/* BOTÓN SVG */
+#toggle-panel{
+  position:fixed;
+  bottom:18px;
+  left:12px;
+  z-index:1100;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  background:#0b5ed7;
+  border:none;
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+  cursor:pointer;
+  transition:background .3s ease;
 }
 
-/* =======================
-   PANEL LATERAL
-   ======================= */
-#panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 240px;
-  height: 100vh;
-  background: #ffffff;
-  padding: 10px;
-  overflow-y: auto;
-  z-index: 1000;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  border-right: 1px solid #e5e7eb;
-  box-shadow: 4px 0 18px rgba(0,0,0,0.08);
+#toggle-panel svg{width:22px;height:22px}
+.line{
+  fill:none;
+  stroke:white;
+  stroke-width:8;
+  stroke-linecap:round;
+  transition:all .4s ease;
 }
 
-#panel.open {
-  transform: translateX(0);
+#toggle-panel .label{
+  color:white;
+  font-size:14px;
+  font-weight:600;
+  transition:opacity .3s ease,width .3s ease;
 }
 
-#panel h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0b5ed7;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+#toggle-panel .counter{
+  background:#fff;
+  color:#0b5ed7;
+  font-size:12px;
+  font-weight:700;
+  padding:2px 6px;
+  border-radius:10px;
 }
 
-#panel label {
-  font-size: 14px;
-  color: #374151;
-  cursor: pointer;
-}
+/* ESTADO ABIERTO */
+body.panel-open #toggle-panel{background:#dc3545}
+body.panel-open .top{transform:rotate(45deg) translate(14px,-10px)}
+body.panel-open .middle{opacity:0}
+body.panel-open .bottom{transform:rotate(-45deg) translate(14px,10px)}
+body.panel-open .label{opacity:0;width:0;overflow:hidden}
 
-#panel input[type="checkbox"] {
-  accent-color: #0b5ed7;
-  margin-right: 6px;
-}
-
-/* =======================
-   BOTÓN RECORRIDOS
-   ======================= */
-#toggle-panel {
-  position: fixed;
-  bottom: 18px;
-  left: 12px;
-  z-index: 1100;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 10px 14px;
-  background: #0b5ed7; /* cerrado */
-  border: none;
-  border-radius: 14px;
-
-  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-/* SVG */
-#toggle-panel svg {
-  width: 22px;
-  height: 22px;
-}
-
-.line {
-  fill: none;
-  stroke: white;
-  stroke-width: 8;
-  stroke-linecap: round;
-  transition: all 0.4s ease;
-}
-
-/* Texto */
-#toggle-panel .label {
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  transition: opacity 0.3s ease, width 0.3s ease;
-}
-
-/* Contador */
-#toggle-panel .counter {
-  background: white;
-  color: #0b5ed7;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-}
-
-/* =======================
-   BOTÓN ABIERTO
-   ======================= */
-#panel.open ~ #toggle-panel {
-  background: #dc3545; /* rojo */
-}
-
-#panel.open ~ #toggle-panel .top {
-  transform: rotate(45deg) translate(14px, -10px);
-}
-
-#panel.open ~ #toggle-panel .middle {
-  opacity: 0;
-}
-
-#panel.open ~ #toggle-panel .bottom {
-  transform: rotate(-45deg) translate(14px, 10px);
-}
-
-#panel.open ~ #toggle-panel .label {
-  opacity: 0;
-  width: 0;
-  overflow: hidden;
-}
-
-/* =======================
-   ESCRITORIO
-   ======================= */
-@media (min-width: 769px) {
-  #panel {
-    transform: translateX(0);
-  }
-
-  #toggle-panel {
-    display: none;
-  }
-
-  #map {
-    margin-left: 240px;
-    width: calc(100vw - 240px);
-  }
+/* ESCRITORIO */
+@media(min-width:769px){
+  #toggle-panel{display:none}
+  #panel{transform:translateX(0)}
+  #map{margin-left:240px;width:calc(100vw - 240px)}
 }
 </style>
 </head>
 
 <body>
 
-<button id="toggle-panel" aria-label="Recorridos">
-  <svg viewBox="0 0 100 100">
-    <path class="line top" d="M 20 30 H 80" />
-    <path class="line middle" d="M 20 50 H 80" />
-    <path class="line bottom" d="M 20 70 H 80" />
-  </svg>
-  <span class="label">Recorridos</span>
-  <span class="counter" id="route-count">0</span>
-</button>
-
 <div id="panel">
   <h3>🚌 Recorridos</h3>
   <div id="lista">Cargando…</div>
 </div>
 
+<button id="toggle-panel">
+  <svg viewBox="0 0 100 100">
+    <path class="line top" d="M20 30 H80"/>
+    <path class="line middle" d="M20 50 H80"/>
+    <path class="line bottom" d="M20 70 H80"/>
+  </svg>
+  <span class="label">Recorridos</span>
+  <span class="counter" id="route-count">0</span>
+</button>
+
 <div id="map"></div>
 
 <script>
-/* =======================
-   MAPA
-   ======================= */
-const map = L.map('map', {
-  maxZoom: 18,
-  zoomControl: false
-}).setView([-39.82, -73.25], 13);
+const map=L.map('map',{zoomControl:false}).setView([-39.82,-73.25],13);
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd'}).addTo(map);
 
-L.control.zoom({ position: 'topright' }).addTo(map);
+const panel=document.getElementById('panel');
+const btn=document.getElementById('toggle-panel');
+const body=document.body;
 
-L.tileLayer(
-  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    subdomains: 'abcd',
-    maxZoom: 19
-  }
-).addTo(map);
+btn.onclick=()=>{
+  panel.classList.toggle('open');
+  body.classList.toggle('panel-open');
+};
 
-/* =======================
-   PANEL
-   ======================= */
-const panel = document.getElementById("panel");
-const toggleBtn = document.getElementById("toggle-panel");
+let active=0;
+const counter=document.getElementById('route-count');
 
-toggleBtn.addEventListener("click", () => {
-  panel.classList.toggle("open");
-});
-
-/* =======================
-   RECORRIDOS + CONTADOR
-   ======================= */
-let activeRoutes = 0;
-const counter = document.getElementById("route-count");
-
-fetch("./data/index.json")
-  .then(r => r.json())
-  .then(routes => {
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
-
-    routes.forEach(rt => {
-      fetch(`./data/${rt.archivo}`)
-        .then(r => r.json())
-        .then(gj => {
-          const layer = L.geoJSON(gj, {
-            style: { color: rt.color, weight: 4 }
-          });
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-
-          checkbox.onchange = () => {
-            if (checkbox.checked) {
-              layer.addTo(map);
-              activeRoutes++;
-              panel.classList.remove("open");
-            } else {
-              map.removeLayer(layer);
-              activeRoutes--;
-            }
-            counter.textContent = activeRoutes;
-          };
-
-          const label = document.createElement("label");
-          label.textContent = `"${rt.route_short_name}" ${rt.route_id} - ${rt.route_long_name}`;
-
-          lista.appendChild(checkbox);
-          lista.appendChild(label);
-          lista.appendChild(document.createElement("br"));
-        });
+fetch('./data/index.json').then(r=>r.json()).then(routes=>{
+  const lista=document.getElementById('lista');
+  lista.innerHTML='';
+  routes.forEach(rt=>{
+    fetch(`./data/${rt.archivo}`).then(r=>r.json()).then(gj=>{
+      const layer=L.geoJSON(gj,{style:{color:rt.color,weight:4}});
+      const cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.onchange=()=>{
+        if(cb.checked){layer.addTo(map);active++}
+        else{map.removeLayer(layer);active--}
+        counter.textContent=active;
+        panel.classList.remove('open');
+        body.classList.remove('panel-open');
+      };
+      const label=document.createElement('label');
+      label.textContent=`"${rt.route_short_name}" ${rt.route_id} - ${rt.route_long_name}`;
+      lista.append(cb,label,document.createElement('br'));
     });
   });
-
-/* =======================
-   PWA
-   ======================= */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
+});
 </script>
 
 </body>
 </html>
+``
