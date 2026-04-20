@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Recorridos Transporte Público – Valdivia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b5ed7">
+<link rel="icon" href="icons/favicon.png" type="image/png">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+body{margin:0;font-family:Arial,sans-serif;overflow:hidden}
+#map{width:100vw;height:100vh}
+#panel{position:absolute;top:0;left:0;width:240px;height:100vh;background:#f4f4f4;padding:10px;overflow-y:auto;z-index:1000;transition:transform .3s ease;box-shadow:2px 0 6px rgba(0,0,0,.15)}
+#toggle-panel{position:absolute;top:10px;left:10px;z-index:1100;font-size:22px;padding:6px 10px;border:none;background:#0b5ed7;color:#fff;border-radius:4px}
+#offline-banner{display:none;position:fixed;top:0;left:0;right:0;background:#dc3545;color:#fff;padding:6px;text-align:center;z-index:1200;font-weight:bold}
+@media(min-width:769px){#panel{transform:translateX(0)}#toggle-panel{display:none}#map{margin-left:240px;width:calc(100vw - 240px)}}
+@media(max-width:768px){#panel{width:220px;transform:translateX(-100%)}#panel.open{transform:translateX(0)}#map{margin-left:0;width:100vw}}
+</style>
+</head>
+<body>
+<div id="offline-banner">⚠️ Modo offline: usando datos guardados</div>
+<button id="toggle-panel">☰</button>
+<div id="panel"><h3>🚌 Recorridos</h3><div id="lista">Cargando…</div></div>
+<div id="map"></div>
+<script>
+const map=L.map('map',{maxZoom:18,zoomControl:false}).setView([-39.82,-73.25],13);
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
+
+const toggleBtn=document.getElementById('toggle-panel');
+const panel=document.getElementById('panel');
+toggleBtn.onclick=()=>panel.classList.toggle('open');
+
+fetch('./data/index.json').then(r=>r.json()).then(routes=>{
+ const lista=document.getElementById('lista');lista.innerHTML='';
+ routes.forEach(rt=>{
+  fetch(`./data/${rt.archivo}`).then(r=>r.json()).then(gj=>{
+   const layer=L.geoJSON(gj,{style:{color:rt.color,weight:4}});
+   const cb=document.createElement('input');cb.type='checkbox';
+   cb.onchange=()=>cb.checked?layer.addTo(map):map.removeLayer(layer);
+   const lb=document.createElement('label');
+   lb.textContent=`"${rt.route_short_name}" ${rt.route_id} - ${rt.route_long_name}`;
+   lista.append(cb,lb,document.createElement('br'));
+  });
+ });
+});
+
+if('serviceWorker'in navigator){navigator.serviceWorker.register('service-worker.js');}
+</script>
+</body>
+</html>
