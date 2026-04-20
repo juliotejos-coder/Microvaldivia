@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Recorridos Transporte Público – Valdivia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b5ed7">
+<link rel="icon" href="icons/favicon.png" type="image/png">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  body { margin: 0; display: flex; font-family: Arial, sans-serif; }
+  #panel { width: 280px; padding: 10px; background:#f4f4f4; overflow-y:auto; }
+  #map { flex:1; height:100vh; }
+</style>
+</head>
+<body>
+
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;background:#dc3545;color:#fff;padding:8px;text-align:center;z-index:9999;font-weight:bold;">
+  ⚠️ Modo offline: usando datos guardados
+</div>
+
+<div id="panel">
+  <h3>🚌 Recorridos</h3>
+  <div id="lista">Cargando…</div>
+</div>
+
+<div id="map"></div>
+
+<script>
+// Inicializar mapa
+const map = L.map('map', { maxZoom: 18 }).setView([-39.82, -73.25], 13);
+
+// ✅ MAPA BASE CARTO (SIN TOKEN, SIN BLOQUEOS)
+L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }
+).addTo(map);
+
+// Banner modo offline
+function updateOnlineStatus() {
+  const banner = document.getElementById('offline-banner');
+  banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+// Cargar recorridos desde GeoJSON
+fetch('data/index.json')
+  .then(r => r.json())
+  .then(routes => {
+    const lista = document.getElementById('lista');
+    lista.innerHTML = '';
+
+    routes.forEach(rt => {
+      fetch(`data/${rt.archivo}`)
+        .then(r => r.json())
+        .then(gj => {
+          const layer = L.geoJSON(gj, {
+            style: { color: rt.color, weight: 4 }
+          });
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.onchange = () => {
+            checkbox.checked ? layer.addTo(map) : map.removeLayer(layer);
+          };
+
+          const label = document.createElement('label');
+          label.textContent = ` Ruta ${rt.route_id}`;
+
+          lista.appendChild(checkbox);
+          lista.appendChild(label);
+          lista.appendChild(document.createElement('br'));
+        });
+    });
+  })
+  .catch(() => {
+    document.getElementById('lista').innerHTML = 'Error cargando recorridos';
+  });
+
+// Registrar Service Worker (PWA)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
+</body>
+</html>

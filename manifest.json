@@ -1,0 +1,13 @@
+{
+  "name": "Recorridos Transporte Valdivia",
+  "short_name": "Recorridos Valdivia",
+  "start_url": "mapa_valdivia.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0b5ed7",
+  "scope": "./",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
