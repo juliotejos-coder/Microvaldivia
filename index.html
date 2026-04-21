@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- VERSION APP (cambiar en cada modificación) -->
-<meta name="app-version" content="2026-04-20-06">
+<meta name="app-version" content="2026-04-20-07">
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b5ed7">
@@ -217,9 +217,40 @@ fetch("./data/index.json")
         .then(r => r.json())
         .then(gj => {
 
-          const layer = L.geoJSON(gj, {
-            style: { color: rt.color, weight: 4 }
-          });
+          
+
+// Halo (fondo)
+const halo = L.geoJSON(gj, {
+  style: {
+    color: "#000",
+    weight: 7,
+    opacity: 0.15
+  }
+});
+
+// Línea principal
+const layer = L.geoJSON(gj, {
+  style: {
+    color: rt.color,
+    weight: 4,
+    opacity: 0.7,
+    lineCap: "round",
+    lineJoin: "round"
+  }
+});
+
+// Al activar
+checkbox.onchange = () => {
+  if (checkbox.checked) {
+    halo.addTo(map);
+    layer.addTo(map);
+  } else {
+    map.removeLayer(halo);
+    map.removeLayer(layer);
+  }
+};
+
+
 
           const container = document.createElement("div");
           container.className = "route-item";
