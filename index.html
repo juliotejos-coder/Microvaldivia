@@ -4,16 +4,23 @@
 <meta charset="utf-8">
 <title>Recorridos Transporte Público – Valdivia</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="app-version" content="2026-04-21-13">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leafletmargin:0;
-  padding:0;
-  height:100%;
+<!-- VERSIÓN BASE ESTABLE + TARIFAS -->
+<meta name="app-version" content="2026-04-21-08">
+
+<!-- LEAFLET CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
   font-family: Arial, sans-serif;
 }
+
 #map {
-  width:100%;
-  height:100%;
+  width: 100%;
+  height: 100%;
 }
 
 /* PANEL RECORRIDOS */
@@ -21,35 +28,23 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 240px;
+  width: 260px;
   height: 100%;
-  background: #fff;
+  background: #ffffff;
   padding: 12px;
   overflow-y: auto;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
   z-index: 1000;
-  box-shadow: 4px 0 18px rgba(0,0,0,0.1);
 }
-#panel.open { transform: translateX(0); }
-#panel h3 { margin:0 0 10px; color:#0b5ed7; }
 
-/* LISTA MICROS */
-.route-item { margin-bottom:10px; }
-.route-header { display:flex; align-items:center; gap:8px; }
-.route-title { font-weight:600; cursor:pointer; }
-.route-detail {
-  margin-left:22px;
-  font-size:13px;
-  color:#555;
-  max-height:0;
-  opacity:0;
-  overflow:hidden;
-  transition:0.3s;
+#panel h3 {
+  margin-top: 0;
+  color: #0b5ed7;
 }
-.route-detail.open {
-  max-height:80px;
-  opacity:1;
+
+.route {
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
 /* BOTONES */
@@ -59,212 +54,195 @@
   z-index: 1100;
   padding: 10px 14px;
   border: none;
-  border-radius: 14px;
-  font-weight: 600;
-  color: #fff;
+  border-radius: 10px;
+  font-weight: bold;
+  color: #ffffff;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
-#btn-recorridos { left:12px; background:#0b5ed7; }
-#btn-tarifa { right:12px; background:#dc3545; }
+
+#btn-recorridos {
+  left: 16px;
+  background: #0b5ed7;
+}
+
+#btn-tarifa {
+  right: 16px;
+  background: #dc3545;
+}
 
 /* PANEL TARIFAS */
 #fare-panel {
   position: fixed;
   bottom: 70px;
-  right: 12px;
+  right: 16px;
   width: 260px;
-  background: #fff;
+  background: #ffffff;
   padding: 14px;
   border-radius: 14px;
   box-shadow: 0 10px 28px rgba(0,0,0,0.35);
   transform: translateX(120%);
-  transition: 0.35s;
+  transition: transform 0.3s ease;
   z-index: 1200;
 }
-#fare-panel.open { transform: translateX(0); }
+
+#fare-panel.open {
+  transform: translateX(0);
+}
+
 #fare-close {
-  position:absolute;
-  top:6px;
-  right:8px;
-  background:none;
-  border:none;
-  font-size:18px;
-  cursor:pointer;
-  color:#dc3545;
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #dc3545;
 }
 
-/* PANEL FILTRO */
-#filter-panel {
-  position: fixed;
-  top: 110px;
-  right: 12px;
-  width: 260px;
-  background: #fff;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-  transform: translateX(120%);
-  transition: 0.3s;
-  z-index: 1200;
-}
-#filter-panel.open { transform: translateX(0); }
-#filter-close {
-  position:absolute;
-  top:6px;
-  right:8px;
-  border:none;
-  background:none;
-  cursor:pointer;
+#fare-panel h4 {
+  margin: 0 0 10px 0;
+  color: #dc3545;
 }
 
-/* ETIQUETA JARDINES */
-.jardin-label {
-  background:#fff;
-  border:1px solid #333;
-  padding:2px 6px;
-  border-radius:6px;
-  font-size:12px;
+#fare-panel ul {
+  padding-left: 18px;
+  margin: 8px 0;
 }
 
-@media (min-width:769px) {
-  #panel { transform: translateX(0); }
-  #btn-recorridos { display:none; }
-  #map { margin-left:240px; width:calc(100% - 240px); }
+#fare-panel li {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+#fare-panel hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 8px 0;
+}
+
+/* RESPONSIVE */
+@media (min-width: 769px) {
+  #btn-recorridos {
+    display: none;
+  }
+  #map {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- PANEL RECORRIDOS -->
 <div id="panel">
   <h3>🚌 Recorridos</h3>
-  <div id="lista">Cargando…</div>
+  <div id="lista">Cargando recorridos…</div>
 </div>
 
 <button id="btn-recorridos" class="fab">Recorridos</button>
 
+<!-- PANEL TARIFAS -->
 <div id="fare-panel">
   <button id="fare-close">✖</button>
   <h4>Detalle de Tarifas<br><small>(desde 28/02/2026)</small></h4>
   <ul>
-    <li>👤 Adulto Local: $590</li>
-    <li>👵 Adulto Mayor Local: $290</li>
-    <li>🎓 Estudiante Local: $190</li>
+    <li>👤 <strong>Adulto Local:</strong> $590</li>
+    <li>👵 <strong>Adulto Mayor Local:</strong> $290</li>
+    <li>🎓 <strong>Estudiante Local:</strong> $190</li>
     <hr>
-    <li>☁️ Adulto Niebla: $740</li>
-    <li>☁️👵 Adulto Mayor Niebla: $370</li>
-    <li>☁️🎓 Estudiante Niebla: $240</li>
+    <li>☁️ <strong>Adulto Niebla:</strong> $740</li>
+    <li>☁️👵 <strong>Adulto Mayor Niebla:</strong> $370</li>
+    <li>☁️🎓 <strong>Estudiante Niebla:</strong> $240</li>
   </ul>
+  <div style="text-align:right;font-size:12px;color:#666">
+    Proyecto: Julio Alveal Tejos
+  </div>
 </div>
 
 <button id="btn-tarifa" class="fab">💲 Valor de la micro</button>
 
-<div id="filter-panel">
-  <button id="filter-close">✖</button>
-  <h4>Filtros</h4>
-  <label>
-    <input type="checkbox" id="chk-jardines">
-    Jardines Fundación Integra
-  </label>
-</div>
-
 <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.jsript>
-/* MAPA */
-const map = L.map('map',{zoomControl:false})
-  .setView([-39.82,-73.25],13);
+<!-- LEAFLET JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-L.control.zoom({position:'topright'}).addTo(map);
+<script>
+/* MAPA */
+const map = L.map('map').setView([-39.82, -73.25], 13);
 
 L.tileLayer(
   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  {subdomains:'abcd', maxZoom:19}
+  { subdomains: 'abcd', maxZoom: 19 }
 ).addTo(map);
 
 /* BOTONES */
-document.getElementById('btn-recorridos').onclick =
- () => document.getElementById('panel').classList.toggle('open');
+document.getElementById('btn-recorridos').onclick = () => {
+  document.getElementById('panel').classList.toggle('open');
+};
 
-document.getElementById('btn-tarifa').onclick =
- () => document.getElementById('fare-panel').classList.add('open');
+document.getElementById('btn-tarifa').onclick = () => {
+  document.getElementById('fare-panel').classList.add('open');
+};
 
-document.getElementById('fare-close').onclick =
- () => document.getElementById('fare-panel').classList.remove('open');
+document.getElementById('fare-close').onclick = () => {
+  document.getElementById('fare-panel').classList.remove('open');
+};
 
-/* FILTRO */
-const FilterControl = L.Control.extend({
-  options:{position:'topright'},
-  onAdd: () => {
-    const d = L.DomUtil.create('div','leaflet-bar leaflet-control');
-    d.style.padding='8px';
-    d.style.background='#fff';
-    d.style.cursor='pointer';
-    d.innerHTML='🔍 Filtro';
-    d.onclick = () => document.getElementById('filter-panel').classList.toggle('open');
-    return d;
-  }
-});
-map.addControl(new FilterControl());
-
-document.getElementById('filter-close').onclick =
- () => document.getElementById('filter-panel').classList.remove('open');
-
-/* JARDINES */
-const jardines = [
-  {n:'El Canelito',lat:-39.84273497,lon:-73.21693456},
-  {n:'Cuncunita',lat:-39.80377064,lon:-73.20890803}
-];
-
-const jardinIcon = L.icon({
-  iconUrl:'icons/jardin.png',
-  iconSize:[36,36],
-  iconAnchor:[18,36]
-});
-
-const gardenMarkers = jardines.map(j =>
-  L.marker([j.lat,j.lon],{icon:jardinIcon})
-    .bindTooltip(j.n,{permanent:true,direction:'top',offset:[0,-34],className:'jardin-label'})
-);
-
-document.getElementById('chk-jardines').onchange = e =>
-  gardenMarkers.forEach(m => e.target.checked ? m.addTo(map) : map.removeLayer(m));
-
-/* CARGA MICROS */
+/* CARGA DE RECORRIDOS */
 fetch('./data/index.json')
- .then(r => r.json())
- .then(routes => {
-   const lista = document.getElementById('lista');
-   lista.innerHTML='';
-   routes.forEach(rt=>{
-     fetch(`./data/${rt.archivo}`)
-       .then(r => r.json())
-       .then(gj=>{
-         const halo = L.geoJSON(gj,{style:{color:'#000',weight:7,opacity:0.15}});
-         const line = L.geoJSON(gj,{style:{color:rt.color,weight:4,opacity:0.65}});
+  .then(resp => {
+    if (!resp.ok) throw new Error('No se pudo cargar index.json');
+    return resp.json();
+  })
+  .then(routes => {
+    const lista = document.getElementById('lista');
+    lista.innerHTML = '';
 
-         const div=document.createElement('div'); div.className='route-item';
-         const h=document.createElement('div'); h.className='route-header';
-         const cb=document.createElement('input'); cb.type='checkbox';
-         const t=document.createElement('span'); t.className='route-title';
-         t.textContent = `Micro ${rt.route_short_name}`;
-         const d=document.createElement('div'); d.className='route-detail';
-         d.textContent = `${rt.route_id} - ${rt.route_long_name}`;
+    routes.forEach(rt => {
+      const div = document.createElement('div');
+      div.className = 'route';
 
-         t.onclick = ()=> d.classList.toggle('open');
-         cb.onchange = ()=> cb.checked
-           ? (halo.addTo(map), line.addTo(map))
-           : (map.removeLayer(halo), map.removeLayer(line));
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
 
-         h.append(cb,t);
-         div.append(h,d);
-         lista.append(div);
-       });
-   });
- });
+      const label = document.createElement('span');
+      label.textContent = ` ${rt.route_short_name} – ${rt.route_long_name}`;
+
+      let layer = null;
+
+      cb.onchange = () => {
+        if (cb.checked) {
+          fetch(`./data/${rt.archivo}`)
+            .then(r => r.json())
+            .then(gj => {
+              layer = L.geoJSON(gj, {
+                style: {
+                  color: rt.color,
+                  weight: 4,
+                  opacity: 0.7
+                }
+              }).addTo(map);
+            });
+        } else {
+          if (layer) map.removeLayer(layer);
+        }
+      };
+
+      div.appendChild(cb);
+      div.appendChild(label);
+      lista.appendChild(div);
+    });
+  })
+  .catch(err => {
+    document.getElementById('lista').innerHTML =
+      `<span style="color:red">Error cargando recorridos</span>`;
+    console.error(err);
+  });
 </script>
 
 </body>
 </html>
-``
