@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- CAMBIAR ESTE VALOR EN CADA MODIFICACIÓN -->
-<meta name="app-version" content="2026-04-21-02">
+<meta name="app-version" content="2026-04-21-06">
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b5ed7">
-<link rel="icon" href="icons/favicon.png" type="image/png">
+<link rel="icon" href="icons/favicon.png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -22,13 +22,12 @@ body {
   font-family: Arial, sans-serif;
   overflow: hidden;
 }
-
 #map {
   width: 100vw;
   height: 100vh;
 }
 
-/* ===== PANEL ===== */
+/* ===== PANEL RECORRIDOS ===== */
 #panel {
   position: fixed;
   top: 0;
@@ -43,11 +42,9 @@ body {
   z-index: 1000;
   box-shadow: 4px 0 18px rgba(0,0,0,0.1);
 }
-
 #panel.open {
   transform: translateX(0);
 }
-
 #panel h3 {
   margin: 0 0 12px 0;
   font-size: 16px;
@@ -56,25 +53,18 @@ body {
   padding-bottom: 6px;
 }
 
-/* ===== LISTA ===== */
-.route-item {
-  margin-bottom: 10px;
-}
-
+/* ===== LISTA MICROS ===== */
+.route-item { margin-bottom: 10px; }
 .route-header {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .route-title {
   font-size: 14px;
   font-weight: 600;
-  color: #111827;
   cursor: pointer;
 }
-
-/* ===== DETALLE ANIMADO ===== */
 .route-detail {
   font-size: 13px;
   color: #4b5563;
@@ -85,71 +75,93 @@ body {
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.25s ease;
 }
-
 .route-detail.open {
   max-height: 80px;
   opacity: 1;
 }
 
-/* ===== BOTÓN TOGGLE ===== */
+/* ===== BOTÓN RECORRIDOS ===== */
 #toggle-panel {
   position: fixed;
   bottom: 16px;
   left: 12px;
   z-index: 1100;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 10px 14px;
   background: #0b5ed7;
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 14px;
-  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* SVG */
-#toggle-panel svg {
-  width: 22px;
-  height: 22px;
-}
-
-.line {
-  fill: none;
-  stroke: white;
-  stroke-width: 8;
-  stroke-linecap: round;
-  transition: all 0.3s ease;
-}
-
-/* BOTÓN ABIERTO */
-body.panel-open #toggle-panel {
+/* ===== BOTÓN TARIFAS ===== */
+#fare-toggle {
+  position: fixed;
+  bottom: 16px;
+  right: 12px;
+  z-index: 1100;
+  padding: 10px 14px;
   background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-body.panel-open .top {
-  transform: rotate(45deg) translate(14px, -10px);
+/* ===== PANEL TARIFAS (SLIDE) ===== */
+#fare-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100vh;
+  background: #ffffff;
+  padding: 16px;
+  box-shadow: -6px 0 28px rgba(0,0,0,0.35);
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+  z-index: 1200;
 }
-body.panel-open .middle {
-  opacity: 0;
+#fare-panel.open { transform: translateX(0); }
+#fare-panel h4 {
+  margin: 0 0 12px;
+  color: #dc3545;
 }
-body.panel-open .bottom {
-  transform: rotate(-45deg) translate(14px, 10px);
+#fare-panel ul {
+  list-style: none;
+  padding-left: 0;
+}
+#fare-panel li {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+#fare-panel hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 10px 0;
+}
+
+/* ===== ICONOS SVG ===== */
+.fare-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+  fill: none;
+  stroke: #374151;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* ===== DESKTOP ===== */
 @media (min-width: 769px) {
-  #panel {
-    transform: translateX(0);
-  }
-
-  #toggle-panel {
-    display: none;
-  }
-
+  #panel { transform: translateX(0); }
+  #toggle-panel { display: none; }
   #map {
     margin-left: 240px;
     width: calc(100vw - 240px);
@@ -160,125 +172,81 @@ body.panel-open .bottom {
 
 <body>
 
-<!-- PANEL -->
+<!-- PANEL RECORRIDOS -->
 <div id="panel">
   <h3>🚌 Recorridos</h3>
   <div id="lista">Cargando…</div>
 </div>
 
-<!-- BOTÓN -->
-<button id="toggle-panel">
-  <svg viewBox="0 0 100 100">
-    <path class="line top" d="M20 30 H80"></path>
-    <path class="line middle" d="M20 50 H80"></path>
-    <path class="line bottom" d="M20 70 H80"></path>
-  </svg>
-  Recorridos
-</button>
+<button id="toggle-panel">Recorridos</button>
 
-<!-- MAPA -->
+<!-- PANEL TARIFAS -->
+<div id="fare-panel">
+  <h4>Detalle de Tarifas<br><small>(desde 28/02/2026)</small></h4>
+  <ul>
+    <li><svg class="fare-icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21v-1a6.5 6.5 0 0 1 13 0v1"/></svg><strong>Adulto Local:</strong> $590</li>
+    <li><svg class="fare-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 22v-2a6 6 0 0 1 12 0v2"/></svg><strong>Adulto Mayor Local:</strong> $290</li>
+    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M22 10v6l-10 5-10-5v-6"/><path d="M2 10l10-5 10 5"/></svg><strong>Estudiante Local:</strong> $190</li>
+    <hr>
+    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M17.5 19a5.5 5.5 0 0 0 0-11h-1A7 7 0 1 0 6 18"/></svg><strong>Adulto Niebla:</strong> $740</li>
+    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M17.5 19a5.5 5.5 0 0 0 0-11h-1A7 7 0 1 0 6 18"/><circle cx="12" cy="8" r="3"/></svg><strong>Adulto Mayor Niebla:</strong> $370</li>
+    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M17.5 19a5.5 5.5 0 0 0 0-11h-1A7 7 0 1 0 6 18"/><path d="M22 12l-10 5-10-5"/></svg><strong>Estudiante Niebla:</strong> $240</li>
+  </ul>
+  <div style="margin-top:10px;font-size:12px;color:#6b7280;text-align:right">
+    Proyecto: Julio Alveal Tejos
+  </div>
+</div>
+
+<button id="fare-toggle">💲 Valor de la micro</button>
+
 <div id="map"></div>
 
 <script>
 /* ===== MAPA ===== */
-const map = L.map('map', { zoomControl: false })
-  .setView([-39.82, -73.25], 13);
+const map = L.map('map',{zoomControl:false})
+  .setView([-39.82,-73.25],13);
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd'}).addTo(map);
 
-L.control.zoom({ position: 'topright' }).addTo(map);
-
-L.tileLayer(
-  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { subdomains: 'abcd', maxZoom: 19 }
-).addTo(map);
-
-/* ===== PANEL TOGGLE ===== */
-const panel = document.getElementById("panel");
-const toggleBtn = document.getElementById("toggle-panel");
-
-toggleBtn.onclick = () => {
+/* ===== PANEL RECORRIDOS ===== */
+const panel=document.getElementById("panel");
+document.getElementById("toggle-panel").onclick=()=>{
   panel.classList.toggle("open");
-  document.body.classList.toggle("panel-open");
 };
 
-/* ===== CARGA DE RUTAS CON LÍNEAS TRANSLÚCIDAS ===== */
+/* ===== PANEL TARIFAS ===== */
+const farePanel=document.getElementById("fare-panel");
+const fareToggle=document.getElementById("fare-toggle");
+fareToggle.onclick=()=>{
+  farePanel.classList.toggle("open");
+  fareToggle.textContent = farePanel.classList.contains("open")
+    ? "✖ Cerrar tarifas"
+    : "💲 Valor de la micro";
+};
+map.on("click",()=>farePanel.classList.remove("open"));
+
+/* ===== CARGA DE RUTAS ===== */
 fetch("./data/index.json")
-  .then(r => r.json())
-  .then(routes => {
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
-
-    routes.forEach(rt => {
-      fetch(`./data/${rt.archivo}`)
-        .then(r => r.json())
-        .then(gj => {
-
-          // Halo de fondo (muy suave)
-          const halo = L.geoJSON(gj, {
-            style: {
-              color: "#000",
-              weight: 7,
-              opacity: 0.15
-            }
-          });
-
-          // Línea principal translúcida
-          const layer = L.geoJSON(gj, {
-            style: {
-              color: rt.color,
-              weight: 4,
-              opacity: 0.65,
-              lineCap: "round",
-              lineJoin: "round"
-            }
-          });
-
-          const container = document.createElement("div");
-          container.className = "route-item";
-
-          const header = document.createElement("div");
-          header.className = "route-header";
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-
-          const title = document.createElement("span");
-          title.className = "route-title";
-          title.textContent = `Micro ${rt.route_short_name}`;
-
-          header.appendChild(checkbox);
-          header.appendChild(title);
-
-          const detail = document.createElement("div");
-          detail.className = "route-detail";
-          detail.textContent = `${rt.route_id} - ${rt.route_long_name}`;
-
-          title.onclick = () => {
-            detail.classList.toggle("open");
-          };
-
-          checkbox.onchange = () => {
-            if (checkbox.checked) {
-              halo.addTo(map);
-              layer.addTo(map);
-            } else {
-              map.removeLayer(halo);
-              map.removeLayer(layer);
-            }
-          };
-
-          container.appendChild(header);
-          container.appendChild(detail);
-          lista.appendChild(container);
-        });
+.then(r=>r.json())
+.then(routes=>{
+  const lista=document.getElementById("lista"); lista.innerHTML="";
+  routes.forEach(rt=>{
+    fetch(`./data/${rt.archivo}`).then(r=>r.json()).then(gj=>{
+      const halo=L.geoJSON(gj,{style:{color:"#000",weight:7,opacity:0.15}});
+      const layer=L.geoJSON(gj,{style:{color:rt.color,weight:4,opacity:0.65}});
+      const c=document.createElement("div"); c.className="route-item";
+      const h=document.createElement("div"); h.className="route-header";
+      const cb=document.createElement("input"); cb.type="checkbox";
+      const t=document.createElement("span"); t.className="route-title"; t.textContent=`Micro ${rt.route_short_name}`;
+      h.append(cb,t);
+      const d=document.createElement("div"); d.className="route-detail"; d.textContent=`${rt.route_id} - ${rt.route_long_name}`;
+      t.onclick=()=>d.classList.toggle("open");
+      cb.onchange=()=>{cb.checked?(halo.addTo(map),layer.addTo(map)):(map.removeLayer(halo),map.removeLayer(layer))};
+      c.append(h,d); lista.appendChild(c);
     });
   });
-
-/* ===== PWA ===== */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
+});
 </script>
 
 </body>
 </html>
-``
