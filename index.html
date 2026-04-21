@@ -5,8 +5,8 @@
 <title>Recorridos Transporte Público – Valdivia</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- CAMBIAR ESTE VALOR EN CADA MODIFICACIÓN -->
-<meta name="app-version" content="2026-04-21-06">
+<!-- Forzar actualización automática -->
+<meta name="app-version" content="2026-04-21-08">
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b5ed7">
@@ -42,11 +42,10 @@ body {
   z-index: 1000;
   box-shadow: 4px 0 18px rgba(0,0,0,0.1);
 }
-#panel.open {
-  transform: translateX(0);
-}
+#panel.open { transform: translateX(0); }
+
 #panel h3 {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   font-size: 16px;
   color: #0b5ed7;
   border-bottom: 1px solid #e5e7eb;
@@ -80,82 +79,84 @@ body {
   opacity: 1;
 }
 
-/* ===== BOTÓN RECORRIDOS ===== */
-#toggle-panel {
+/* ===== BOTONES ===== */
+#toggle-panel, #fare-toggle {
   position: fixed;
   bottom: 16px;
-  left: 12px;
   z-index: 1100;
   padding: 10px 14px;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+#toggle-panel {
+  left: 12px;
   background: #0b5ed7;
   color: #fff;
-  border: none;
-  border-radius: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* ===== BOTÓN TARIFAS ===== */
 #fare-toggle {
-  position: fixed;
-  bottom: 16px;
   right: 12px;
-  z-index: 1100;
-  padding: 10px 14px;
   background: #dc3545;
   color: #fff;
-  border: none;
-  border-radius: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* ===== PANEL TARIFAS (SLIDE) ===== */
+/* ===== PANEL TARIFAS (COMPACTO) ===== */
 #fare-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  width: 280px;
-  height: 100vh;
+  bottom: 70px;
+  right: 12px;
+  width: 260px;
   background: #ffffff;
-  padding: 16px;
-  box-shadow: -6px 0 28px rgba(0,0,0,0.35);
-  transform: translateX(100%);
+  padding: 14px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  transform: translateX(120%);
   transition: transform 0.35s ease;
   z-index: 1200;
 }
 #fare-panel.open { transform: translateX(0); }
+
 #fare-panel h4 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: #dc3545;
-}
-#fare-panel ul {
-  list-style: none;
-  padding-left: 0;
-}
-#fare-panel li {
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-#fare-panel hr {
-  border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 10px 0;
+  font-size: 15px;
 }
 
-/* ===== ICONOS SVG ===== */
-.fare-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 6px;
-  vertical-align: middle;
-  fill: none;
-  stroke: #374151;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+#fare-panel ul {
+  padding-left: 18px;
+  margin: 6px 0;
+}
+#fare-panel li {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+#fare-panel hr {
+  margin: 8px 0;
+  border: none;
+  border-top: 1px solid #e5e7eb;
+}
+#fare-panel .autor {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+  margin-top: 6px;
+}
+
+/* Botón cerrar tarifas */
+#fare-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #dc3545;
 }
 
 /* ===== DESKTOP ===== */
@@ -182,19 +183,18 @@ body {
 
 <!-- PANEL TARIFAS -->
 <div id="fare-panel">
+  <button id="fare-close">✖</button>
   <h4>Detalle de Tarifas<br><small>(desde 28/02/2026)</small></h4>
   <ul>
-    <li><svg class="fare-icon" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21v-1a6.5 6.5 0 0 1 13 0v1"/></svg><strong>Adulto Local:</strong> $590</li>
-    <li><svg class="fare-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6 22v-2a6 6 0 0 1 12 0v2"/></svg><strong>Adulto Mayor Local:</strong> $290</li>
-    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M22 10v6l-10 5-10-5v-6"/><path d="M2 10l10-5 10 5"/></svg><strong>Estudiante Local:</strong> $190</li>
+    <li>👤 <strong>Adulto Local:</strong> $590</li>
+    <li>👵 <strong>Adulto Mayor Local:</strong> $290</li>
+    <li>🎓 <strong>Estudiante Local:</strong> $190</li>
     <hr>
-    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M17.5 19a5.5 5.5 0 0 0 0-11h-1A7 7 0 1 0 6 18"/></svg><strong>Adulto Niebla:</strong> $740</li>
-    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M17.5 19a5.5 5.5 0 0 0 0-11h-1A7 7 0 1 0 6 18"/><circle cx="12" cy="8" r="3"/></svg><strong>Adulto Mayor Niebla:</strong> $370</li>
-    <li><svg class="fare-icon" viewBox="0 0 24 24"><path d="M17.5 19a5.5 5.5 0 0 0 0-11h-1A7 7 0 1 0 6 18"/><path d="M22 12l-10 5-10-5"/></svg><strong>Estudiante Niebla:</strong> $240</li>
+    <li>☁️ <strong>Adulto Niebla:</strong> $740</li>
+    <li>☁️👵 <strong>Adulto Mayor Niebla:</strong> $370</li>
+    <li>☁️🎓 <strong>Estudiante Niebla:</strong> $240</li>
   </ul>
-  <div style="margin-top:10px;font-size:12px;color:#6b7280;text-align:right">
-    Proyecto: Julio Alveal Tejos
-  </div>
+  <div class="autor">Proyecto: Julio Alveal Tejos</div>
 </div>
 
 <button id="fare-toggle">💲 Valor de la micro</button>
@@ -203,50 +203,74 @@ body {
 
 <script>
 /* ===== MAPA ===== */
-const map = L.map('map',{zoomControl:false})
-  .setView([-39.82,-73.25],13);
-L.control.zoom({position:'topright'}).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd'}).addTo(map);
+const map = L.map('map', { zoomControl: false })
+  .setView([-39.82, -73.25], 13);
+
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  { subdomains: 'abcd', maxZoom: 19 }
+).addTo(map);
 
 /* ===== PANEL RECORRIDOS ===== */
-const panel=document.getElementById("panel");
-document.getElementById("toggle-panel").onclick=()=>{
+const panel = document.getElementById("panel");
+document.getElementById("toggle-panel").onclick = () => {
   panel.classList.toggle("open");
 };
 
 /* ===== PANEL TARIFAS ===== */
-const farePanel=document.getElementById("fare-panel");
-const fareToggle=document.getElementById("fare-toggle");
-fareToggle.onclick=()=>{
-  farePanel.classList.toggle("open");
-  fareToggle.textContent = farePanel.classList.contains("open")
-    ? "✖ Cerrar tarifas"
-    : "💲 Valor de la micro";
-};
-map.on("click",()=>farePanel.classList.remove("open"));
+const farePanel = document.getElementById("fare-panel");
+const fareToggle = document.getElementById("fare-toggle");
+const fareClose = document.getElementById("fare-close");
+
+fareToggle.onclick = () => farePanel.classList.add("open");
+fareClose.onclick = () => farePanel.classList.remove("open");
+map.on("click", () => farePanel.classList.remove("open"));
 
 /* ===== CARGA DE RUTAS ===== */
 fetch("./data/index.json")
-.then(r=>r.json())
-.then(routes=>{
-  const lista=document.getElementById("lista"); lista.innerHTML="";
-  routes.forEach(rt=>{
-    fetch(`./data/${rt.archivo}`).then(r=>r.json()).then(gj=>{
-      const halo=L.geoJSON(gj,{style:{color:"#000",weight:7,opacity:0.15}});
-      const layer=L.geoJSON(gj,{style:{color:rt.color,weight:4,opacity:0.65}});
-      const c=document.createElement("div"); c.className="route-item";
-      const h=document.createElement("div"); h.className="route-header";
-      const cb=document.createElement("input"); cb.type="checkbox";
-      const t=document.createElement("span"); t.className="route-title"; t.textContent=`Micro ${rt.route_short_name}`;
-      h.append(cb,t);
-      const d=document.createElement("div"); d.className="route-detail"; d.textContent=`${rt.route_id} - ${rt.route_long_name}`;
-      t.onclick=()=>d.classList.toggle("open");
-      cb.onchange=()=>{cb.checked?(halo.addTo(map),layer.addTo(map)):(map.removeLayer(halo),map.removeLayer(layer))};
-      c.append(h,d); lista.appendChild(c);
-    });
+.then(r => r.json())
+.then(routes => {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  routes.forEach(rt => {
+    fetch(`./data/${rt.archivo}`)
+      .then(r => r.json())
+      .then(gj => {
+        const halo = L.geoJSON(gj, { style:{ color:"#000", weight:7, opacity:0.15 }});
+        const layer = L.geoJSON(gj, { style:{ color:rt.color, weight:4, opacity:0.65 }});
+
+        const c = document.createElement("div"); c.className="route-item";
+        const h = document.createElement("div"); h.className="route-header";
+
+        const cb = document.createElement("input"); cb.type="checkbox";
+        const t = document.createElement("span"); t.className="route-title";
+        t.textContent = `Micro ${rt.route_short_name}`;
+
+        const d = document.createElement("div"); d.className="route-detail";
+        d.textContent = `${rt.route_id} - ${rt.route_long_name}`;
+
+        t.onclick = () => d.classList.toggle("open");
+        cb.onchange = () => {
+          cb.checked ? (halo.addTo(map), layer.addTo(map))
+                     : (map.removeLayer(halo), map.removeLayer(layer));
+        };
+
+        h.append(cb, t);
+        c.append(h, d);
+        lista.appendChild(c);
+      });
   });
 });
+
+/* ===== PWA ===== */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
 </script>
 
 </body>
 </html>
+``
