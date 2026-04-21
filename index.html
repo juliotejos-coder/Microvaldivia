@@ -27,15 +27,16 @@ html, body {
   position: fixed;
   top: 0; left: 0;
   width: 260px; height: 100%;
-  background: #fff;
+  background: #ffffff;
   padding: 12px;
   overflow-y: auto;
-  box-shadow: 4px 0 12px rgba(0,0,0,.15);
+  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
   z-index: 1000;
   transform: translateX(-100%);
-  transition: transform .3s;
+  transition: transform 0.3s ease;
 }
 #panel.open { transform: translateX(0); }
+#panel h3 { margin:0 0 10px 0; color:#0b5ed7; }
 
 /* ===== BOTONES ===== */
 .fab {
@@ -43,52 +44,89 @@ html, body {
   bottom: 16px;
   z-index: 1100;
   padding: 10px 14px;
-  border-radius: 10px;
   border: none;
+  border-radius: 10px;
   font-weight: bold;
-  color: #fff;
+  color: #ffffff;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 #btn-recorridos { left:16px; background:#0b5ed7; }
 #btn-tarifa { right:16px; background:#dc3545; }
 
-/* ===== FILTRO ===== */
-.leaflet-control-filter .filter-btn {
-  width:34px;height:34px;
-  background:#0b5ed7;color:#fff;
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
+/* ===== PANEL TARIFAS ===== */
+#fare-panel {
+  position: fixed;
+  bottom: 70px;
+  right: 16px;
+  width: 260px;
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+  z-index: 1200;
 }
-.filter-panel {
-  background:#fff;
-  padding:10px;
-  border-radius:10px;
-  margin-top:6px;
-  transform:scaleY(0);
-  transform-origin:top;
-  transition:.25s;
-}
-.filter-panel.open { transform:scaleY(1); }
+#fare-panel.open { transform: translateX(0); }
 
-/* ===== LABEL JARDÍN ===== */
+#fare-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #dc3545;
+}
+
+/* ===== FILTRO BAJO ZOOM ===== */
+.leaflet-control-zoom .filter-btn {
+  width: 34px;
+  height: 34px;
+  background: #0b5ed7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  border-top: 1px solid #ccc;
+}
+
+.filter-panel {
+  position: absolute;
+  top: 76px;
+  right: 0;
+  width: 190px;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.25s ease;
+  z-index: 1000;
+}
+.filter-panel.open { transform: scaleY(1); }
+
+/* ===== LABEL JARDIN ===== */
 .label-jardin {
-  background: rgba(255,255,255,.9);
-  border-radius:6px;
-  padding:2px 6px;
-  font-size:11px;
-  box-shadow:0 2px 6px rgba(0,0,0,.3);
+  background: rgba(255,255,255,0.9);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 11px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 /* ===== RESPONSIVE ===== */
-@media (min-width:769px){
-  #panel { transform:translateX(0); }
-  #btn-recorridos { display:none; }
+@media (min-width: 769px) {
+  #panel { transform: translateX(0); }
+  #btn-recorridos { display: none; }
   #map {
-    margin-left:260px;
-    width:calc(100% - 260px);
+    margin-left: 260px;
+    width: calc(100% - 260px);
   }
 }
 </style>
@@ -96,14 +134,39 @@ html, body {
 
 <body>
 
-<!-- PANEL -->
+<!-- PANEL RECORRIDOS -->
 <div id="panel">
   <h3>🚌 Recorridos</h3>
   <div id="lista">Cargando recorridos…</div>
 </div>
 
 <button id="btn-recorridos" class="fab">Recorridos</button>
-<button id="btn-tarifa" class="fab">💲 Valor</button>
+
+<!-- PANEL TARIFAS -->
+<div id="fare-panel">
+  <button id="fare-close">✖</button>
+
+  <h4 style="margin-top:0;color:#dc3545">
+    Detalle de Tarifas<br>
+    <span style="font-size:13px;font-weight:normal">(desde 28/02/2026)</span>
+  </h4>
+
+  <div>👤 <strong>Adulto Local:</strong> $590</div>
+  <div>👵 <strong>Adulto Mayor Local:</strong> $290</div>
+  <div>🎓 <strong>Estudiante Local:</strong> $190</div>
+
+  <hr>
+
+  <div>☁️ <strong>Adulto Niebla:</strong> $740</div>
+  <div>☁️👵 <strong>Adulto Mayor Niebla:</strong> $370</div>
+  <div>☁️🎓 <strong>Estudiante Niebla:</strong> $240</div>
+
+  <div style="margin-top:10px;font-size:12px;text-align:right;color:#666">
+    Proyecto: Julio Alveal Tejos
+  </div>
+</div>
+
+<button id="btn-tarifa" class="fab">💲 Valor de la micro</button>
 
 <div id="map"></div>
 
@@ -123,32 +186,33 @@ L.tileLayer(
   {subdomains:'abcd',maxZoom:19}
 ).addTo(map);
 
-document.getElementById('btn-recorridos').onclick = () =>
-  panel.classList.toggle('open');
+/* ===== BOTONES ===== */
+btn-recorridos.onclick = ()=> panel.classList.toggle('open');
+btn-tarifa.onclick = ()=> fare-panel.classList.add('open');
+fare-close.onclick = ()=> fare-panel.classList.remove('open');
 
-/* ===== CONTROL FILTRO ===== */
-const FilterControl = L.Control.extend({
-  options:{position:'topright'},
-  onAdd(){
-    const c = L.DomUtil.create('div','leaflet-control-filter');
-    const b = L.DomUtil.create('div','filter-btn',c);
-    b.innerHTML='🔍';
-    const p = L.DomUtil.create('div','filter-panel',c);
-    p.innerHTML = `
-      <label>
-        <input type="checkbox" id="chk-jardines">
-        Jardines Integra
-      </label>`;
-    b.onclick = ()=> p.classList.toggle('open');
-    L.DomEvent.disableClickPropagation(c);
-    return c;
-  }
-});
-map.addControl(new FilterControl());
+/* ===== FILTRO BAJO ZOOM ===== */
+setTimeout(()=>{
+  const zoom=document.querySelector('.leaflet-control-zoom');
+  const btn=document.createElement('div');
+  btn.className='filter-btn';
+  btn.innerHTML='🔍';
+  zoom.appendChild(btn);
+
+  const panelF=document.createElement('div');
+  panelF.className='filter-panel';
+  panelF.innerHTML=`
+    <label>
+      <input type="checkbox" id="chk-jardines">
+      Jardines Integra
+    </label>`;
+  zoom.parentElement.appendChild(panelF);
+
+  btn.onclick=()=>panelF.classList.toggle('open');
+},400);
 
 /* ===== RECORRIDOS ===== */
-const capasRecorridos = [];
-
+const capasRecorridos=[];
 fetch('./data/index.json')
 .then(r=>r.json())
 .then(routes=>{
@@ -156,8 +220,8 @@ fetch('./data/index.json')
   routes.forEach(rt=>{
     const cb=document.createElement('input');
     cb.type='checkbox';
-
     let layer=null;
+
     cb.onchange=()=>{
       if(cb.checked){
         fetch(`./data/${rt.archivo}`)
@@ -166,10 +230,7 @@ fetch('./data/index.json')
           layer=L.geoJSON(gj,{
             style:{color:rt.color,weight:4,opacity:.7}
           }).addTo(map);
-          capasRecorridos.push({
-            nombre:`Micro ${rt.route_short_name}`,
-            layer
-          });
+          capasRecorridos.push({nombre:`Micro ${rt.route_short_name}`,layer});
         });
       } else if(layer){
         map.removeLayer(layer);
@@ -183,8 +244,8 @@ fetch('./data/index.json')
 });
 
 /* ===== DISTANCIA ===== */
-function distanciaPuntoLinea(latlng, poly){
-  let min=999999;
+function distancia(latlng, poly){
+  let min=Infinity;
   poly.getLatLngs().flat(2).forEach(p=>{
     min=Math.min(min,map.distance(latlng,p));
   });
@@ -192,22 +253,18 @@ function distanciaPuntoLinea(latlng, poly){
 }
 
 /* ===== JARDINES + CLUSTER ===== */
-const iconJardin=L.icon({
+const cluster=L.markerClusterGroup({disableClusteringAtZoom:17});
+const icon=L.icon({
   iconUrl:'./icons/jardines.png',
   iconSize:[30,30],
   iconAnchor:[15,28]
 });
 
-const clusterJardines=L.markerClusterGroup({
-  disableClusteringAtZoom:17,
-  maxClusterRadius:50
-});
-
 fetch('./data/jardines.json')
 .then(r=>r.json())
-.then(jardines=>{
-  jardines.forEach(j=>{
-    const m=L.marker([j.lat,j.lng],{icon:iconJardin})
+.then(js=>{
+  js.forEach(j=>{
+    const m=L.marker([j.lat,j.lng],{icon})
       .bindTooltip(j.nombre,{
         permanent:true,
         direction:'top',
@@ -215,8 +272,8 @@ fetch('./data/jardines.json')
         className:'label-jardin'
       })
       .on('click',()=>{
-        const cerca = capasRecorridos
-          .filter(r=>distanciaPuntoLinea(m.getLatLng(),r.layer)<200)
+        const cerca=capasRecorridos
+          .filter(r=>distancia(m.getLatLng(),r.layer)<200)
           .map(r=>r.nombre);
 
         m.bindPopup(
@@ -225,15 +282,14 @@ fetch('./data/jardines.json')
             : 'No hay micros cercanas'
         ).openPopup();
       });
-    clusterJardines.addLayer(m);
+    cluster.addLayer(m);
   });
 });
 
 document.addEventListener('change',e=>{
   if(e.target.id==='chk-jardines'){
-    e.target.checked
-      ? map.addLayer(clusterJardines)
-      : map.removeLayer(clusterJardines);
+    e.target.checked ? map.addLayer(cluster)
+                     : map.removeLayer(cluster);
   }
 });
 </script>
