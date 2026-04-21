@@ -5,12 +5,12 @@
 <title>Recorridos Transporte Público – Valdivia</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- VERSION APP (cambiar en cada modificación) -->
-<meta name="app-version" content="2026-04-20-07">
+<!-- CAMBIAR ESTE VALOR EN CADA MODIFICACIÓN -->
+<meta name="app-version" content="2026-04-21-02">
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b5ed7">
-<link rel="icon" href="icons/favicon.png">
+<link rel="icon" href="icons/favicon.png" type="image/png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -56,7 +56,7 @@ body {
   padding-bottom: 6px;
 }
 
-/* ===== LISTA DE RECORRIDOS ===== */
+/* ===== LISTA ===== */
 .route-item {
   margin-bottom: 10px;
 }
@@ -80,7 +80,6 @@ body {
   color: #4b5563;
   margin-left: 22px;
   margin-top: 2px;
-
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -88,7 +87,7 @@ body {
 }
 
 .route-detail.open {
-  max-height: 80px; /* suficiente para 1–2 líneas */
+  max-height: 80px;
   opacity: 1;
 }
 
@@ -98,21 +97,17 @@ body {
   bottom: 16px;
   left: 12px;
   z-index: 1100;
-
   display: flex;
   align-items: center;
   gap: 8px;
-
   padding: 10px 14px;
   background: #0b5ed7;
   color: #ffffff;
   border: none;
   border-radius: 14px;
-
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
@@ -145,7 +140,7 @@ body.panel-open .bottom {
   transform: rotate(-45deg) translate(14px, 10px);
 }
 
-/* ===== ESCRITORIO ===== */
+/* ===== DESKTOP ===== */
 @media (min-width: 769px) {
   #panel {
     transform: translateX(0);
@@ -205,7 +200,7 @@ toggleBtn.onclick = () => {
   document.body.classList.toggle("panel-open");
 };
 
-/* ===== CARGA DE RUTAS ===== */
+/* ===== CARGA DE RUTAS CON LÍNEAS TRANSLÚCIDAS ===== */
 fetch("./data/index.json")
   .then(r => r.json())
   .then(routes => {
@@ -217,40 +212,25 @@ fetch("./data/index.json")
         .then(r => r.json())
         .then(gj => {
 
-          
+          // Halo de fondo (muy suave)
+          const halo = L.geoJSON(gj, {
+            style: {
+              color: "#000",
+              weight: 7,
+              opacity: 0.15
+            }
+          });
 
-// Halo (fondo)
-const halo = L.geoJSON(gj, {
-  style: {
-    color: "#000",
-    weight: 7,
-    opacity: 0.15
-  }
-});
-
-// Línea principal
-const layer = L.geoJSON(gj, {
-  style: {
-    color: rt.color,
-    weight: 4,
-    opacity: 0.7,
-    lineCap: "round",
-    lineJoin: "round"
-  }
-});
-
-// Al activar
-checkbox.onchange = () => {
-  if (checkbox.checked) {
-    halo.addTo(map);
-    layer.addTo(map);
-  } else {
-    map.removeLayer(halo);
-    map.removeLayer(layer);
-  }
-};
-
-
+          // Línea principal translúcida
+          const layer = L.geoJSON(gj, {
+            style: {
+              color: rt.color,
+              weight: 4,
+              opacity: 0.65,
+              lineCap: "round",
+              lineJoin: "round"
+            }
+          });
 
           const container = document.createElement("div");
           container.className = "route-item";
@@ -276,15 +256,15 @@ checkbox.onchange = () => {
             detail.classList.toggle("open");
           };
 
-
-checkbox.onchange = () => {
-  if (checkbox.checked) {
-    layer.addTo(map);
-  } else {
-    map.removeLayer(layer);
-  }
-};
-
+          checkbox.onchange = () => {
+            if (checkbox.checked) {
+              halo.addTo(map);
+              layer.addTo(map);
+            } else {
+              map.removeLayer(halo);
+              map.removeLayer(layer);
+            }
+          };
 
           container.appendChild(header);
           container.appendChild(detail);
@@ -301,3 +281,4 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+``
