@@ -245,15 +245,15 @@ fetch("./data/index.json")
             detail.classList.toggle("open");
           };
 
-          checkbox.onchange = () => {
-            if (checkbox.checked) {
-              layer.addTo(map);
-              panel.classList.remove("open");
-              document.body.classList.remove("panel-open");
-            } else {
-              map.removeLayer(layer);
-            }
-          };
+
+checkbox.onchange = () => {
+  if (checkbox.checked) {
+    layer.addTo(map);
+  } else {
+    map.removeLayer(layer);
+  }
+};
+
 
           container.appendChild(header);
           container.appendChild(detail);
