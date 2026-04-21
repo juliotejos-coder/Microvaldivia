@@ -131,6 +131,45 @@ html, body {
   color: #dc3545;
 }
 
+/* ===== TARIFAS (ESTILO IMAGEN) ===== */
+.fare-title {
+  margin: 0 0 14px 0;
+  font-size: 18px;
+  color: #dc3545;
+  line-height: 1.25;
+}
+
+.fare-title span {
+  display: block;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.fare-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fare-item {
+  font-size: 15px;
+  color: #111827;
+}
+
+.fare-divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 12px 0;
+}
+
+.fare-footer {
+  margin-top: 14px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (min-width: 769px) {
   #panel {
     transform: translateX(0);
@@ -148,7 +187,7 @@ html, body {
 
 <body>
 
-<!-- PANEL -->
+<!-- PANEL RECORRIDOS -->
 <div id="panel">
   <h3>🚌 Recorridos</h3>
   <div id="lista">Cargando recorridos…</div>
@@ -156,20 +195,30 @@ html, body {
 
 <button id="btn-recorridos" class="fab">Recorridos</button>
 
-<!-- TARIFAS -->
+<!-- PANEL TARIFAS -->
 <div id="fare-panel">
   <button id="fare-close">✖</button>
-  <h4>Detalle de Tarifas<br><small>(desde 28/02/2026)</small></h4>
-  <ul>
-    <li>👤 Adulto Local: $590</li>
-    <li>👵 Adulto Mayor Local: $290</li>
-    <li>🎓 Estudiante Local: $190</li>
-    <hr>
-    <li>☁️ Adulto Niebla: $740</li>
-    <li>☁️👵 Adulto Mayor Niebla: $370</li>
-    <li>☁️🎓 Estudiante Niebla: $240</li>
-  </ul>
-  <div style="margin-top:10px;font-size:12px;color:#6b7280;text-align:right">
+
+  <h4 class="fare-title">
+    Detalle de Tarifas
+    <span>(desde 28/02/2026)</span>
+  </h4>
+
+  <div class="fare-group">
+    <div class="fare-item">👤 <strong>Adulto Local:</strong> $590</div>
+    <div class="fare-item">👵 <strong>Adulto Mayor Local:</strong> $290</div>
+    <div class="fare-item">🎓 <strong>Estudiante Local:</strong> $190</div>
+  </div>
+
+  <hr class="fare-divider">
+
+  <div class="fare-group">
+    <div class="fare-item">☁️ <strong>Adulto Niebla:</strong> $740</div>
+    <div class="fare-item">☁️👵 <strong>Adulto Mayor Niebla:</strong> $370</div>
+    <div class="fare-item">☁️🎓 <strong>Estudiante Niebla:</strong> $240</div>
+  </div>
+
+  <div class="fare-footer">
     Proyecto: Julio Alveal Tejos
   </div>
 </div>
@@ -213,10 +262,7 @@ document.getElementById('fare-close').onclick = () => {
 
 /* ===== CARGA DE RECORRIDOS ===== */
 fetch('./data/index.json')
-  .then(resp => {
-    if (!resp.ok) throw new Error('No se pudo cargar index.json');
-    return resp.json();
-  })
+  .then(r => r.json())
   .then(routes => {
     const lista = document.getElementById('lista');
     lista.innerHTML = '';
@@ -239,9 +285,7 @@ fetch('./data/index.json')
       detail.className = 'route-detail';
       detail.textContent = rt.route_long_name;
 
-      title.onclick = () => {
-        detail.classList.toggle('open');
-      };
+      title.onclick = () => detail.classList.toggle('open');
 
       let layer = null;
 
@@ -258,8 +302,8 @@ fetch('./data/index.json')
                 }
               }).addTo(map);
             });
-        } else {
-          if (layer) map.removeLayer(layer);
+        } else if (layer) {
+          map.removeLayer(layer);
         }
       };
 
@@ -269,11 +313,6 @@ fetch('./data/index.json')
       div.appendChild(detail);
       lista.appendChild(div);
     });
-  })
-  .catch(err => {
-    document.getElementById('lista').innerHTML =
-      '<span style="color:red">Error cargando recorridos</span>';
-    console.error(err);
   });
 </script>
 
