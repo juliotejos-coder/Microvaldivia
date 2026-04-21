@@ -29,7 +29,7 @@
   },
   {
     "route_id": "305",
-    "route_short_name": "20R",
+    "route_short_name": "20V",
     "route_long_name": "ANGACHILLA - UNIVERSIDAD AUSTRAL DE CHILE",
     "archivo": "ruta_305.geojson",
     "color": "#EA580C"
