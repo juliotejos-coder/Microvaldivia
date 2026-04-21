@@ -5,10 +5,8 @@
 <title>Recorridos Transporte Público – Valdivia</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- VERSIÓN BASE ESTABLE + TARIFAS -->
-<meta name="app-version" content="2026-04-21-08">
+<meta name="app-version" content="2026-04-21-09">
 
-<!-- LEAFLET CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
@@ -23,7 +21,7 @@ html, body {
   height: 100%;
 }
 
-/* PANEL RECORRIDOS */
+/* ===== PANEL RECORRIDOS ===== */
 #panel {
   position: fixed;
   top: 0;
@@ -35,19 +33,51 @@ html, body {
   overflow-y: auto;
   box-shadow: 4px 0 12px rgba(0,0,0,0.15);
   z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+#panel.open {
+  transform: translateX(0);
 }
 
 #panel h3 {
-  margin-top: 0;
+  margin: 0 0 10px 0;
   color: #0b5ed7;
 }
 
+/* ===== LISTA MICROS ===== */
 .route {
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 10px;
 }
 
-/* BOTONES */
+.route-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.route-title {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.route-detail {
+  margin-left: 22px;
+  font-size: 13px;
+  color: #555;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+
+.route-detail.open {
+  max-height: 60px;
+  opacity: 1;
+}
+
+/* ===== BOTONES ===== */
 .fab {
   position: fixed;
   bottom: 16px;
@@ -71,7 +101,7 @@ html, body {
   background: #dc3545;
 }
 
-/* PANEL TARIFAS */
+/* ===== PANEL TARIFAS ===== */
 #fare-panel {
   position: fixed;
   bottom: 70px;
@@ -101,29 +131,10 @@ html, body {
   color: #dc3545;
 }
 
-#fare-panel h4 {
-  margin: 0 0 10px 0;
-  color: #dc3545;
-}
-
-#fare-panel ul {
-  padding-left: 18px;
-  margin: 8px 0;
-}
-
-#fare-panel li {
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-#fare-panel hr {
-  border: none;
-  border-top: 1px solid #ddd;
-  margin: 8px 0;
-}
-
-/* RESPONSIVE */
 @media (min-width: 769px) {
+  #panel {
+    transform: translateX(0);
+  }
   #btn-recorridos {
     display: none;
   }
@@ -137,7 +148,7 @@ html, body {
 
 <body>
 
-<!-- PANEL RECORRIDOS -->
+<!-- PANEL -->
 <div id="panel">
   <h3>🚌 Recorridos</h3>
   <div id="lista">Cargando recorridos…</div>
@@ -145,41 +156,46 @@ html, body {
 
 <button id="btn-recorridos" class="fab">Recorridos</button>
 
-<!-- PANEL TARIFAS -->
+<!-- TARIFAS -->
 <div id="fare-panel">
   <button id="fare-close">✖</button>
   <h4>Detalle de Tarifas<br><small>(desde 28/02/2026)</small></h4>
   <ul>
-    <li>👤 <strong>Adulto Local:</strong> $590</li>
-    <li>👵 <strong>Adulto Mayor Local:</strong> $290</li>
-    <li>🎓 <strong>Estudiante Local:</strong> $190</li>
+    <li>👤 Adulto Local: $590</li>
+    <li>👵 Adulto Mayor Local: $290</li>
+    <li>🎓 Estudiante Local: $190</li>
     <hr>
-    <li>☁️ <strong>Adulto Niebla:</strong> $740</li>
-    <li>☁️👵 <strong>Adulto Mayor Niebla:</strong> $370</li>
-    <li>☁️🎓 <strong>Estudiante Niebla:</strong> $240</li>
+    <li>☁️ Adulto Niebla: $740</li>
+    <li>☁️👵 Adulto Mayor Niebla: $370</li>
+    <li>☁️🎓 Estudiante Niebla: $240</li>
   </ul>
-  <div style="text-align:right;font-size:12px;color:#666">
-    Proyecto: Julio Alveal Tejos
-  </div>
 </div>
 
 <button id="btn-tarifa" class="fab">💲 Valor de la micro</button>
 
 <div id="map"></div>
 
-<!-- LEAFLET JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-/* MAPA */
-const map = L.map('map').setView([-39.82, -73.25], 13);
+/* ===== MAPA ===== */
+const map = L.map('map', {
+  zoomControl: false
+}).setView([-39.82, -73.25], 13);
+
+L.control.zoom({
+  position: 'topright'
+}).addTo(map);
 
 L.tileLayer(
   'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { subdomains: 'abcd', maxZoom: 19 }
+  {
+    subdomains: 'abcd',
+    maxZoom: 19
+  }
 ).addTo(map);
 
-/* BOTONES */
+/* ===== BOTONES ===== */
 document.getElementById('btn-recorridos').onclick = () => {
   document.getElementById('panel').classList.toggle('open');
 };
@@ -192,7 +208,7 @@ document.getElementById('fare-close').onclick = () => {
   document.getElementById('fare-panel').classList.remove('open');
 };
 
-/* CARGA DE RECORRIDOS */
+/* ===== CARGA DE RECORRIDOS ===== */
 fetch('./data/index.json')
   .then(resp => {
     if (!resp.ok) throw new Error('No se pudo cargar index.json');
@@ -206,11 +222,23 @@ fetch('./data/index.json')
       const div = document.createElement('div');
       div.className = 'route';
 
+      const header = document.createElement('div');
+      header.className = 'route-header';
+
       const cb = document.createElement('input');
       cb.type = 'checkbox';
 
-      const label = document.createElement('span');
-      label.textContent = ` ${rt.route_short_name} – ${rt.route_long_name}`;
+      const title = document.createElement('span');
+      title.className = 'route-title';
+      title.textContent = `Micro ${rt.route_short_name}`;
+
+      const detail = document.createElement('div');
+      detail.className = 'route-detail';
+      detail.textContent = rt.route_long_name;
+
+      title.onclick = () => {
+        detail.classList.toggle('open');
+      };
 
       let layer = null;
 
@@ -232,17 +260,20 @@ fetch('./data/index.json')
         }
       };
 
-      div.appendChild(cb);
-      div.appendChild(label);
+      header.appendChild(cb);
+      header.appendChild(title);
+      div.appendChild(header);
+      div.appendChild(detail);
       lista.appendChild(div);
     });
   })
   .catch(err => {
     document.getElementById('lista').innerHTML =
-      `<span style="color:red">Error cargando recorridos</span>`;
+      '<span style="color:red">Error cargando recorridos</span>';
     console.error(err);
   });
 </script>
 
 </body>
 </html>
+``
