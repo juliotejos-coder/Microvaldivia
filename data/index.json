@@ -1,0 +1,79 @@
+[
+  {
+    "route_id": "299",
+    "route_short_name": "3",
+    "route_long_name": "LLANCAHUE - GUACAMAYO",
+    "archivo": "ruta_299.geojson",
+    "color": "#C1121F"
+  },
+  {
+    "route_id": "302",
+    "route_short_name": "9",
+    "route_long_name": "GUACAMAYO - LOS ROBLES",
+    "archivo": "ruta_302.geojson",
+    "color": "#1D4ED8"
+  },
+  {
+    "route_id": "303",
+    "route_short_name": "11",
+    "route_long_name": "VILLA CLARO DE LUNA - CENTRO",
+    "archivo": "ruta_303.geojson",
+    "color": "#15803D"
+  },
+  {
+    "route_id": "298",
+    "route_short_name": "2",
+    "route_long_name": "EL ARENAL - PEDRO MONTT",
+    "archivo": "ruta_298.geojson",
+    "color": "#7C3AED"
+  },
+  {
+    "route_id": "305",
+    "route_short_name": "20V",
+    "route_long_name": "ANGACHILLA - UNIVERSIDAD AUSTRAL DE CHILE",
+    "archivo": "ruta_305.geojson",
+    "color": "#EA580C"
+  },
+  {
+    "route_id": "301",
+    "route_short_name": "5",
+    "route_long_name": "BALMACEDA - CENTRO",
+    "archivo": "ruta_301.geojson",
+    "color": "#0F766E"
+  },
+  {
+    "route_id": "912",
+    "route_short_name": "4V",
+    "route_long_name": "LAS GAVIOTAS - ISLA TEJA",
+    "archivo": "ruta_912.geojson",
+    "color": "#C1121F"
+  },
+  {
+    "route_id": "297",
+    "route_short_name": "1",
+    "route_long_name": "COLLICO - GUACAMAYO",
+    "archivo": "ruta_297.geojson",
+    "color": "#1D4ED8"
+  },
+  {
+    "route_id": "306",
+    "route_short_name": "22",
+    "route_long_name": "CAMINO EL ARENAL - UNIVERSIDAD AUSTRAL DE CHILE",
+    "archivo": "ruta_306.geojson",
+    "color": "#15803D"
+  },
+  {
+    "route_id": "304",
+    "route_short_name": "20",
+    "route_long_name": "NIEBLA - ANGACHILLA",
+    "archivo": "ruta_304.geojson",
+    "color": "#7C3AED"
+  },
+  {
+    "route_id": "300",
+    "route_short_name": "4",
+    "route_long_name": "LAS GAVIOTAS - ISLA TEJA",
+    "archivo": "ruta_300.geojson",
+    "color": "#EA580C"
+  }
+]
